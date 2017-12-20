@@ -19,6 +19,7 @@ module Zaif
             @api_secret = opt[:api_secret] || nil
             @zaif_public_url = "https://api.zaif.jp/api/1/"
             @zaif_trade_url = "https://api.zaif.jp/tapi"
+            @zaif_leverage_trade_url = "https://api.zaif.jp/tlapi"
         end
 
         def set_api_key(api_key, api_secret)
@@ -65,7 +66,7 @@ module Zaif
         #
         # Trade API
         #
-        
+
         # Get user infomation.
         # Need api key.
         # @return [Hash] Infomation of user.
@@ -73,11 +74,11 @@ module Zaif
             json = post_ssl(@zaif_trade_url, "get_info", {})
             return json
         end
-        
+
         # Get your trade history.
         # Avalible options: from. count, from_id, end_id, order, since, end, currency_pair
         # Need api key.
-        # @param [Hash] 
+        # @param [Hash]
         def get_my_trades(option = {})
             json = post_ssl(@zaif_trade_url, "trade_history", option)
             # Convert to datetime
@@ -136,6 +137,43 @@ module Zaif
             option["address"] = address
             option["amount"] = amount
             json = post_ssl(@zaif_trade_url, "withdraw", option)
+            return json
+        end
+
+        #
+        # Leverage Trade API
+        #
+
+        # Get leverage trade's positions.
+        # Need api key.
+
+        def get_positions(type, option = {})
+            option["type"] = type
+            json = post_ssl(@zaif_leverage_trade_url, "get_positions", option)
+            return json
+        end
+
+        def active_positions(type, option = {})
+            option["type"] = type
+            json = post_ssl(@zaif_leverage_trade_url, "active_positions", option)
+            return json
+        end
+
+        def create_position(type, action, price, amount, option = {currency_pair: 'btc_jpy', leverage: 1})
+            option["type"] = type
+            option["action"] = action
+            option["price"] = price
+            option["amount"] = amount
+            json = post_ssl(@zaif_leverage_trade_url, "create_position", option)
+            return json
+        end
+
+        def change_position(type, leverage_id, price, limit, option = {})
+            option["type"] = type
+            option["leverage_id"] = leverage_id
+            option["price"] = price
+            option["limit"] = limit
+            json = post_ssl(@zaif_leverage_trade_url, "change_position", option)
             return json
         end
 
@@ -228,6 +266,6 @@ module Zaif
                 sleep(@cool_down_time)
             end
         end
-        
+
     end
 end
