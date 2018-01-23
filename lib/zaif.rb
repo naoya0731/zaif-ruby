@@ -67,6 +67,11 @@ module Zaif
         # Trade API
         #
 
+        def get_trade_history(option = {})
+            json = post_ssl(@zaif_trade_url, "trade_history", option)
+            return json
+        end
+
         # Get user infomation.
         # Need api key.
         # @return [Hash] Infomation of user.
